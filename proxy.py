@@ -3,6 +3,7 @@
 This module builds on BaseHTTPServer by implementing the standard GET
 and HEAD requests in a fairly straightforward manner.
 
+TODO: 要把这个BaseServer实现的Proxy使用 curl 的实现替换
 """
 
 
@@ -23,6 +24,7 @@ import zlib
 import time
 import shutil
 import mimetypes
+import curl
 from commdata import commdata 
 
 try:
