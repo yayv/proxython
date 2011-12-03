@@ -1,5 +1,4 @@
 
-
 import eventlet
 from eventlet.green import socket
 
@@ -19,35 +18,38 @@ def checkProxy():
         new_connection, address = proxy_server.accept()
         eventlet.spawn_n(proxyAConnection,new_connection)
 
-def parseCommand(command):
-    if command in commands:
-        print "[",command,"]\n"
-    else:
-        print 'unknown command\n'
+def parseCommandLine(commandline):
     pass
 
-#eventlet.spawn(checkConsole)
-#checkProxy()
-try:
-    while True:
-        console_client,address = console_server.accept()
-        print console_client
-        console_writer = console_client.makefile('w')
-        console_reader = console_client.makefile('r')
-        line = console_reader.readline()
-        while line:
-            print "console:", line.strip()
-            try:
-                parseCommand(line);
-                console_writer.write('copy that\n')
-                console_writer.flush()
-            except socket.error, e:
-                # ignore broken pipes, they just mean the participant
-                # closed its connection already
-                if e[0] != 32:
-                    raise
-            line = console_reader.readline()
 
-except (KeyboardInterrupt, SystemExit):
-    print "ChatServer exiting."                
+def main():
+    eventlet.spawn(checkProxy)
+
+    try:
+        while True:
+            console_client,address = console_server.accept()
+            console_writer = console_client.makefile('w')
+            console_reader = console_client.makefile('r')
+            line = console_reader.readline()
+            while line:
+                print "console:", line.strip()
+                try:
+                    command,params = parseCommandLine(line)
+                    console_writer.flush()
+                    if('close'==ret):
+                        console_client.close()
+                except socket.error, e:
+                    # ignore broken pipes, they just mean the participant
+                    # closed its connection already
+                    if e[0] != 32:
+                        raise
+                line = console_reader.readline()
+
+    except (KeyboardInterrupt, SystemExit):
+        print "Proxy Server Stopped"
+
+
+if __name__=="__main__":
+    main()
+
 
