@@ -1,52 +1,59 @@
-
 import eventlet
+import console
 from eventlet.green import socket
 
 connections = set()
 logs        = set()
 
-proxy_server   = eventlet.listen(('0.0.0.0', 8888))
-console_server = eventlet.listen(('0.0.0.0', 4444))
+try:
+    proxy_server   = eventlet.listen(('0.0.0.0', 8888))
+except:
+    print "error: proxy\n"
 
 commands       = ("help","list","exit")
 
 def proxyAConnection(connection):
-    pass
+    reader = connection.makefile('r')
 
-def checkProxy():
+    # read the request, and choose the target host: localhost, a virtualHost within a special ip, or a realhost
+    line = reader.readline()
+    print line,"\n"
+
+    writer = connection.makefile('w')
+    writer.write("HTTP/1.1 200 OK\n")
+    writer.write("Date: Sun, 04 Dec 2011 16:44:12 GMT\n")
+    writer.write("Server: Apache/2.2.14 (Unix)\n")
+    writer.write("Expires: Thu, 19 Nov 1981 08:52:00 GMT\n")
+    writer.write("Cache-Control: no-store, no-cache, must-revalidate, post-check=0, pre-check=0\n")
+    writer.write("Pragma: no-cache\n")
+    writer.write("Content-Length: 3084\n")
+    writer.write("Keep-Alive: timeout=5, max=100\n")
+    writer.write("Connection: Keep-Alive\n")
+    writer.write("Content-Type: text/html;charset=UTF-8\n")
+    writer.write("\n\n")
+    writer.write('Hi, Body. I"m here.')
+    writer.flush()
+    connection.close()
+    
+
+def doProxyServer():
     while True:
-        new_connection, address = proxy_server.accept()
-        eventlet.spawn_n(proxyAConnection,new_connection)
+        try:
+            new_connection, address = proxy_server.accept()
+            eventlet.spawn_n(proxyAConnection,new_connection)
+        except :
+            print "Proxy Server Closed"
+            break
 
 def parseCommandLine(commandline):
-    pass
+    return 'exit','exitit'
 
 
 def main():
-    eventlet.spawn(checkProxy)
+    eventlet.spawn(doProxyServer)
 
-    try:
-        while True:
-            console_client,address = console_server.accept()
-            console_writer = console_client.makefile('w')
-            console_reader = console_client.makefile('r')
-            line = console_reader.readline()
-            while line:
-                print "console:", line.strip()
-                try:
-                    command,params = parseCommandLine(line)
-                    console_writer.flush()
-                    if('close'==ret):
-                        console_client.close()
-                except socket.error, e:
-                    # ignore broken pipes, they just mean the participant
-                    # closed its connection already
-                    if e[0] != 32:
-                        raise
-                line = console_reader.readline()
-
-    except (KeyboardInterrupt, SystemExit):
-        print "Proxy Server Stopped"
+    console_server = console.console()
+    console_server.start()
 
 
 if __name__=="__main__":
