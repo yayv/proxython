@@ -2,7 +2,11 @@ import eventlet
 
 class console:
     def __init__(self):
-        pass
+        self.commands = ['exit','help','ls','view','']
+        self.command_maps = {'exit':'exit',
+                         '?':'help', 'help':'help',
+                         'view':'view'}
+
 
     def parseCommandLine(self,cmdline):
         return 'exit','ok'
@@ -17,7 +21,7 @@ class console:
 
     def start(self):
         ret = self.startListen()
-        if(not ret):   
+        if(not ret):
             return ret
 
         try:

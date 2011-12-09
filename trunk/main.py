@@ -10,14 +10,23 @@ try:
 except:
     print "error: proxy\n"
 
-commands       = ("help","list","exit")
+def parseRequestLine(line):
+    pass
 
 def proxyAConnection(connection):
     reader = connection.makefile('r')
 
     # read the request, and choose the target host: localhost, a virtualHost within a special ip, or a realhost
     line = reader.readline()
-    print line,"\n"
+
+    # parseRequestLine()
+
+    # server = new httpclient()
+    # server.connect()
+    # server.send_request()
+    # response = server.receive_response()
+    # server.disconnect()
+    # writer.writer( response )
 
     writer = connection.makefile('w')
     writer.write("HTTP/1.1 200 OK\n")
