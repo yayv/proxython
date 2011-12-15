@@ -1,5 +1,4 @@
-
-NOTE for me
+NOTES for me
 
 目标：
     实现一个命令行版本的fiddler, 实现http代理，dns的本地解析，web调试等功能
@@ -8,29 +7,26 @@ NOTE for me
 
 阶段一
 需要实现的功能点包括:
-    1. 本地监听
-    2. 并发TCP链接管理, 可以使用libevent
-    3. 不管协议内容，完全负责转发，并支持日志钩子
-    4. 需要一个链接的映射关系表
-    5. 需要一个配置文件
-    6. 确定基本代码结构
-    7. 阅读源代码，熟悉 libgevent    
-
+	1. 按请求进行管理
+	2. 对请求建立多种索引: session, ip, domain, delegate, Content-Type, Content-Length, etc.
+	3. 实现单纯的转发请求的功能
+	4. 实现客户端请求到代理客户端请求的映射管理
+	5. 实现仿服务器响应的功能
+	6. 考虑钩子的实现方法
+	7. 实现代理类的基类
+	8. 继续熟悉 eventlet
+	9. 对所有的请求和响应，忽略 Connection:keep-alive
+	
 阶段二
-    4. 各个事件的时间点的记录
-    5. 要不要增加事件钩子的扩展方法呢？
-
-阶段三
-    6. 考虑支持http协议，对http head 和  body 进行分拆和支持
-    7. 考虑命令行支持
+	1. 需要支持connection: keep-alive 形式的链接
+	2.     
 
 阶段四
-    8. 准备GUI开发
-
+    1. 准备GUI开发
 
 TODO:
 
-
 DONE:
     
+/images/
 

@@ -1,5 +1,6 @@
 import eventlet
 import console
+import config
 from eventlet.green import socket
 
 connections = set()
