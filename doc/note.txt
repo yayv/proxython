@@ -7,6 +7,7 @@ NOTES for me
 
 阶段一
 需要实现的功能点包括:
+	0. 考虑第一批命令: shutdown, quit, help, ls
 	1. 按请求进行管理
 	2. 对请求建立多种索引: session, ip, domain, delegate, Content-Type, Content-Length, etc.
 	3. 实现单纯的转发请求的功能
@@ -25,7 +26,7 @@ NOTES for me
     1. 准备GUI开发
 
 TODO:
-
+ 
 DONE:
     
 /images/

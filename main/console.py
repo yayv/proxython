@@ -1,19 +1,29 @@
 import eventlet
+from getopt import *
 
 class console:
     def __init__(self):
-        self.commands = ['exit','help','ls','view','']
+        self.commands = ['exit','help','ls','view','shutdown']
         self.command_maps = {'exit':'exit',
                          '?':'help', 'help':'help',
                          'view':'view'}
+        self.listenip  = '0.0.0.0'
+        self.listenport= 4444
 
 
-    def parseCommandLine(self,cmdline):
-        return 'exit','ok'
+    def parseCommandLine(self,sCmdline):
+        lCmdline = sCmdline.strip(' \t\r\n').replace('\t',' ').split(' ')
+        while True:
+            try:
+                lCmdline.remove('')
+            except:
+                break
+        print 'list:',lCmdline,"\n"
+        return lCmdline
 
     def startListen(self):
         try:
-            self.console_server = eventlet.listen(('0.0.0.0', 4444))
+            self.console_server = eventlet.listen((self.listenip, self.listenport))
             return True
         except:
             print 'error: console\n'
@@ -33,11 +43,19 @@ class console:
                 while line:
                     print "console:", line.strip()
                     try:
-                        command,params = self.parseCommandLine(line)
-                        if('exit'==command):
+                    	print 'line:',line
+                        params = self.parseCommandLine(line)
+                        command = params[0]
+                        if('shutdown'==command):
                             console_client.close()
                             self.console_server.close()
                             return 
+                        elif('exit'==command):
+                        	console_reader.close()
+                        	console_writer.write('Close current client\n')
+                        	console_writer.close()
+                        	console_client.close()
+                        	break
                         else:
                             print command
                     except eventlet.greenio.socket.error, e:
@@ -46,7 +64,10 @@ class console:
                         if e[0] != 32:
                             raise
                     line = console_reader.readline()
+                    print "here\n"
 
+            print "proxython server stopped" 
+            
         except (KeyboardInterrupt, SystemExit):
-            print "proxython Stopped"
+            print "proxython console fault"
 
