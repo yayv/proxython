@@ -7,16 +7,20 @@ NOTES for me
 
 阶段一
 需要实现的功能点包括:
-	0. 考虑第一批命令: shutdown, quit, help, ls
-	1. 按请求进行管理
-	2. 对请求建立多种索引: session, ip, domain, delegate, Content-Type, Content-Length, etc.
-	3. 实现单纯的转发请求的功能
-	4. 实现客户端请求到代理客户端请求的映射管理
-	5. 实现仿服务器响应的功能
-	6. 考虑钩子的实现方法
-	7. 实现代理类的基类
-	8. 继续熟悉 eventlet
-	9. 对所有的请求和响应，忽略 Connection:keep-alive
+	0. 实现socket客户端，可以实现完全自定义的http请求，并可以回显
+	1. 最快可以使用的功能目前之一：完全代理，程序开启之后不影响任何页面的浏览
+	2. 最快可以使用的功能目前之二：完全命令行客户端，粘贴参数发送请求，并可以重复发送和查看结果
+
+	3. 按请求进行管理
+	4. 对请求建立多种索引: session, ip, domain, delegate, Content-Type, Content-Length, etc.
+	5. 实现单纯的转发请求的功能
+	6. 实现客户端请求到代理客户端请求的映射管理
+	7. 实现仿服务器响应的功能
+	8. 考虑钩子的实现方法
+	9. 实现代理类的基类
+	10. 考虑第一批命令: shutdown, quit, help, ls
+	11. 继续熟悉 eventlet
+	12. 对所有的请求和响应，忽略 Connection:keep-alive
 	
 阶段二
 	1. 需要支持connection: keep-alive 形式的链接
