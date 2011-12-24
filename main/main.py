@@ -14,22 +14,16 @@ except:
 def parseRequestLine(line):
     pass
 
-def proxyAConnection(connection):
-    reader = connection.makefile('r')
+def getHeader(reader):
+    header = []
+    line = reader.readline().strip()
+    while line!="":
+        header.append(line)
+        line = reader.readline().strip()
 
-    # read the request, and choose the target host: localhost, a virtualHost within a special ip, or a realhost
-    line = reader.readline()
+    return header    
 
-    # parseRequestLine()
-
-    # server = new httpclient()
-    # server.connect()
-    # server.send_request()
-    # response = server.receive_response()
-    # server.disconnect()
-    # writer.writer( response )
-
-    writer = connection.makefile('w')
+def response(writer):
     writer.write("HTTP/1.1 200 OK\n")
     writer.write("Date: Sun, 04 Dec 2011 16:44:12 GMT\n")
     writer.write("Server: Apache/2.2.14 (Unix)\n")
@@ -43,6 +37,27 @@ def proxyAConnection(connection):
     writer.write("\n\n")
     writer.write('Hi, Body. I"m here.')
     writer.flush()
+
+
+def proxyAConnection(connection):
+    reader = connection.makefile('r')
+    
+    header = getHeader(reader)
+    print header
+
+    # read the request, and choose the target host: localhost, a virtualHost within a special ip, or a realhost
+
+    # parseRequestLine()
+
+    # server = new httpclient()
+    # server.connect()
+    # server.send_request()
+    # response = server.receive_response()
+    # server.disconnect()
+    # writer.writer( response )
+    writer = connection.makefile('w')
+    response(writer)
+
     connection.close()
     
 
