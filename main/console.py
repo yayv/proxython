@@ -10,6 +10,8 @@ class console:
         self.listenip  = '0.0.0.0'
         self.listenport= 4444
 
+    def executeCommand(params, writer):
+        pass
 
     def parseCommandLine(self,sCmdline):
         lCmdline = sCmdline.strip(' \t\r\n').replace('\t',' ').split(' ')
@@ -39,33 +41,46 @@ class console:
                 console_client,address = self.console_server.accept()
                 console_writer = console_client.makefile('w')
                 console_reader = console_client.makefile('r')
-                line = console_reader.readline()
-                while line:
-                    print "console:", line.strip()
+
+
+                while True:
                     try:
-                    	print 'line:',line
+                        console_writer.write(">")                    
+                        console_writer.flush()
+
+                        line = console_reader.readline().strip()
                         params = self.parseCommandLine(line)
-                        command = params[0]
-                        if('shutdown'==command):
+
+                        if len(params)<1:
+                            continue;
+
+                        if('shutdown'==params[0]):
+                            console_writer.write('Server Shuting Down.\n')
+                            console_writer.close()
+                            console_reader.close()
                             console_client.close()
                             self.console_server.close()
                             return 
-                        elif('exit'==command):
-                        	console_reader.close()
+                        elif('exit'  ==params[0]):
                         	console_writer.write('Close current client\n')
                         	console_writer.close()
+                        	console_reader.close()
                         	console_client.close()
                         	break
                         else:
-                            print command
+                            ret = self.executeCommand(params,console_writer)
+
                     except eventlet.greenio.socket.error, e:
                         # ignore broken pipes, they just mean the participant
                         # closed its connection already
                         if e[0] != 32:
                             raise
-                    line = console_reader.readline()
-                    print "here\n"
-
+                        else:
+                            console_reader.close()
+                            console_client.close()
+                            break
+                    
+            
             print "proxython server stopped" 
             
         except (KeyboardInterrupt, SystemExit):
