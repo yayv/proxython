@@ -4,6 +4,7 @@ import weakref
 import errno
 import logging
 import pyev
+import getopt
 
 class Connection(object):
 
@@ -67,7 +68,8 @@ class Proxy(Connection):
         super(Proxy, self).__init__(sock, address, loop)
 
     def read(buf):
-        print buf
+        self.cmdbuf += buf
+        l = self.cmdbuf.index("\n")
 
     def write():
         pass
@@ -76,12 +78,24 @@ class Console(Connection):
 
     def __init__(self, sock, address, loop):
         super(Console,self).__init__(sock, address, loop)
+        self.cmdbuf = ""
         self.sock.send("Proxython>")
         logging.debug("{0}: ready".format(self))
 
     def read(self,buf):
-        print buf
+
+        self.cmdbuf += buf
+
+        commands = self.cmdbuf.split("\r\n")
+
+        options  = "abcde:"
+        for command in commands:
+            if command != "":
+                argv = command.split()
+                opts,args = getopt.getopt(argv[1:],options)
+
         self.sock.send("Proxython>")
+
 
     def write(self):
         self.sock.send("Proxython>")
