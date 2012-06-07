@@ -6,6 +6,8 @@ import logging
 import pyev
 import getopt
 
+NONBLOCKING = (errno.EAGAIN, errno.EWOULDBLOCK)
+
 class Connection(object):
 
     def __init__(self, sock, address, loop):
@@ -33,9 +35,12 @@ class Connection(object):
         except socket.error as err:
             if err.args[0] not in NONBLOCKING:
                 self.handle_error("error reading from {0}".format(self.sock))
+            return
+
         if buf:
-            self.read(buf)
-            self.reset(pyev.EV_READ | pyev.EV_WRITE)
+            ret = self.read(buf)
+            if ret:
+                self.reset(pyev.EV_READ | pyev.EV_WRITE)
         else:
             self.handle_error("connection closed by peer", logging.DEBUG, False)
 
@@ -78,9 +83,15 @@ class Console(Connection):
 
     def __init__(self, sock, address, loop):
         super(Console,self).__init__(sock, address, loop)
+        self.commands = {
+                "exit":self.exit,
+                "quit":self.exit,
+                "help":self.help,
+                "list":self.listconns,
+                "ls":self.listconns,
+                }
         self.cmdbuf = ""
         self.sock.send("Proxython>")
-        logging.debug("{0}: ready".format(self))
 
     def read(self,buf):
 
@@ -93,10 +104,36 @@ class Console(Connection):
             if command != "":
                 argv = command.split()
                 opts,args = getopt.getopt(argv[1:],options)
+                if command in self.commands:
+                    self.commands[command](opts,args)
+                else:
+                    self.nocmd(argv[0])
 
-        self.sock.send("Proxython>")
+        self.cmdbuf = ""
+
+        if self.watcher:
+            self.sock.send("Proxython>")
 
 
     def write(self):
         self.sock.send("Proxython>")
+
+    def nocmd(self,command):
+        print "command %s is not support" % command
+        self.sock.send("command '%s' is not support\n" % command);
+
+    def exit(self,opts,args):
+        self.sock.send("Bye-bye\n")
+        self.close()
+        
+    def listconns(self,opts,args):
+        self.sock.send("TODO: finish this command\n")
+        pass
+
+    def help(self,opts,args):
+        for i in self.commands.keys():
+            self.sock.send(i)
+            self.sock.send(" ")
+
+        self.sock.send("\n")
 

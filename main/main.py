@@ -15,10 +15,6 @@ NONBLOCKING = (errno.EAGAIN, errno.EWOULDBLOCK)
 PROXYPORT   = ("",8888)
 CONSOLEPORT = ("",9876)
 
-
-
-
-
 class Server(object):
 
     def __init__(self, address=("",8888), console=("",9876)):
