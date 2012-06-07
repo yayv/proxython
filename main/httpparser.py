@@ -2,7 +2,7 @@
 import eventlet.*
 
 
-class HttpClient:
+class HttpParser:
 	pass
 
 
