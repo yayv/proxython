@@ -81,7 +81,7 @@ class Proxy(Connection):
 
 class Console(Connection):
 
-    def __init__(self, sock, address, loop):
+    def __init__(self, sock, address, loop, conns):
         super(Console,self).__init__(sock, address, loop)
         self.commands = {
                 "exit":self.exit,
@@ -91,6 +91,7 @@ class Console(Connection):
                 "ls":self.listconns,
                 }
         self.cmdbuf = ""
+        self.conns = conns
         self.sock.send("Proxython>")
 
     def read(self,buf):
@@ -113,6 +114,7 @@ class Console(Connection):
 
         if self.watcher:
             self.sock.send("Proxython>")
+            return True
 
 
     def write(self):
@@ -127,8 +129,9 @@ class Console(Connection):
         self.close()
         
     def listconns(self,opts,args):
-        self.sock.send("TODO: finish this command\n")
-        pass
+        print "DDD:"
+        for i in self.conns:
+            print i[0],'  :',i[1]
 
     def help(self,opts,args):
         for i in self.commands.keys():

@@ -63,7 +63,7 @@ class Server(object):
                     else:
                         raise
                 else:
-                    self.conns[address] = Console(sock, address, self.loop)
+                    self.conns[address] = Console(sock, address, self.loop, self.conns)
                     logging.debug("{0}".format(sock))
         except Exception:
             self.handle_error("error accepting a connection")
