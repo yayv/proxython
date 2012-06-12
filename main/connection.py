@@ -1,6 +1,5 @@
 import socket
 import signal
-import weakref
 import errno
 import logging
 import pyev
@@ -14,6 +13,7 @@ class Connection(object):
         self.sock = sock
         self.address = address
         self.sock.setblocking(0)
+        self.status = 'connected'
         self.buf = ""
         self.watcher = pyev.Io(self.sock._sock, pyev.EV_READ, loop, self.io_cb)
         self.watcher.start()
@@ -64,6 +64,7 @@ class Connection(object):
     def close(self):
         self.sock.close()
         self.watcher.stop()
+        self.status = 'stopped'
         self.watcher = None
         logging.debug("{0}: closed".format(self))
 
@@ -72,11 +73,10 @@ class Proxy(Connection):
     def __init__(self, sock, address, loop):
         super(Proxy, self).__init__(sock, address, loop)
 
-    def read(buf):
-        self.cmdbuf += buf
-        l = self.cmdbuf.index("\n")
+    def read(self, buf):
+        pass
 
-    def write():
+    def write(self, buf):
         pass
 
 class Console(Connection):
@@ -85,9 +85,7 @@ class Console(Connection):
         super(Console,self).__init__(sock, address, loop)
         self.commands = {
                 "exit":self.exit,
-                "quit":self.exit,
                 "help":self.help,
-                "list":self.listconns,
                 "ls":self.listconns,
                 }
         self.cmdbuf = ""
@@ -129,9 +127,8 @@ class Console(Connection):
         self.close()
         
     def listconns(self,opts,args):
-        print "DDD:"
         for i in self.conns:
-            print i[0],'  :',i[1]
+            self.sock.send( "%s:%d status:%s\n" % (i[0],i[1], self.conns[i].status ) )
 
     def help(self,opts,args):
         for i in self.commands.keys():

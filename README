@@ -1,1 +1,15 @@
-A Web Proxy Debuger. With Gtk GUI.
+A Web Proxy Debuger in console mode. 
+
+
+TODO:
+1. replace weakref dict to python dict
+2. implement the 'ls' command
+
+Changelog:
+
+
+
+2012-06-12	
+			remove duplicated command : "list" "quit"
+			complete command 'ls'
+

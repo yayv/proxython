@@ -1,10 +1,9 @@
 import socket
 import signal
-import weakref
 import errno
 import logging
 import pyev
-from connection import Connection,Console 
+from connection import Connection,Console,Proxy
 
 
 logging.basicConfig(level=logging.DEBUG)
@@ -42,7 +41,7 @@ class Server(object):
         self.watchers.append(pyev.Io(self.console._sock, pyev.EV_READ, self.loop,
                                      self.console_cb))
 
-        self.conns = weakref.WeakValueDictionary()
+        self.conns = {}
 
     def handle_error(self, msg, level=logging.ERROR, exc_info=True):
         logging.log(level, "{0}: {1} --> stopping".format(self, msg),
@@ -80,7 +79,7 @@ class Server(object):
                     else:
                         raise
                 else:
-                    self.conns[address] = Connection(sock, address, self.loop)
+                    self.conns[address] = Proxy(sock, address, self.loop)
                     logging.debug("{0}: proxy on {0.proxyaddress} and console on {0.consoleaddress}".format(self))
         except Exception:
             self.handle_error("error accepting a connection")
