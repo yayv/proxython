@@ -9,9 +9,11 @@ NONBLOCKING = (errno.EAGAIN, errno.EWOULDBLOCK)
 
 class Connection(object):
 
-    def __init__(self, sock, address, loop):
+    def __init__(self, id, sock, address, loop):
         self.sock = sock
         self.address = address
+        self.id = id
+
         self.sock.setblocking(0)
         self.status = 'connected'
         self.buf = ""
@@ -70,8 +72,8 @@ class Connection(object):
 
 class Proxy(Connection):
 
-    def __init__(self, sock, address, loop):
-        super(Proxy, self).__init__(sock, address, loop)
+    def __init__(self, id, sock, address, loop):
+        super(Proxy, self).__init__(id, sock, address, loop)
 
     def read(self, buf):
         pass
@@ -81,13 +83,24 @@ class Proxy(Connection):
 
 class Console(Connection):
 
-    def __init__(self, sock, address, loop, conns):
-        super(Console,self).__init__(sock, address, loop)
+    def __init__(self, id, sock, address, loop, conns):
+        super(Console,self).__init__(id, sock, address, loop)
         self.commands = {
                 "exit":self.exit,
-                "help":self.help,
+                chr(4):self.exit,
+                "help":self.help,                
                 "ls":self.listconns,
+                "rm":self.remove,
                 }
+
+        self.options = {
+                "exit":"h",
+                chr(4):"h",
+                "help":"h",                
+                "ls":"h",
+                "rm":"h",
+                }
+
         self.cmdbuf = ""
         self.conns = conns
         self.sock.send("Proxython>")
@@ -98,13 +111,12 @@ class Console(Connection):
 
         commands = self.cmdbuf.split("\r\n")
 
-        options  = "abcde:"
         for command in commands:
             if command != "":
-                argv = command.split()
-                opts,args = getopt.getopt(argv[1:],options)
-                if command in self.commands:
-                    self.commands[command](opts,args)
+                argv = command.split()                
+                if argv[0] in self.commands:
+                    opts,args = getopt.getopt(argv[1:],self.options[argv[0]])
+                    self.commands[argv[0]](opts,args)
                 else:
                     self.nocmd(argv[0])
 
@@ -119,21 +131,39 @@ class Console(Connection):
         self.sock.send("Proxython>")
 
     def nocmd(self,command):
-        print "command %s is not support" % command
+        
+        if len(command)>1:
+            print "command '%s' is not support" % command
+        else:
+            print "%d" % ord(command)
+
         self.sock.send("command '%s' is not support\n" % command);
 
     def exit(self,opts,args):
         self.sock.send("Bye-bye\n")
         self.close()
         
-    def listconns(self,opts,args):
-        for i in self.conns:
-            self.sock.send( "%s:%d status:%s\n" % (i[0],i[1], self.conns[i].status ) )
-
     def help(self,opts,args):
         for i in self.commands.keys():
             self.sock.send(i)
             self.sock.send(" ")
 
         self.sock.send("\n")
+
+    def listconns(self,opts,args):
+        for i in self.conns:
+            self.sock.send( "%d %s:%d status:%s\n" % (self.conns[i].id, self.conns[i].address[0],self.conns[i].address[1], self.conns[i].status ) )
+
+
+    def remove(self,opts,args):
+        for i in args:
+            if self.conns[i].status=='stopped':
+                del self.conns[i]
+                self.sock.send('connection:%s deleted\n' % i)
+            else:
+                self.sock.send('connection%s is still working\n' % i)
+
+
+
+
 

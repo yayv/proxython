@@ -2,12 +2,17 @@ A Web Proxy Debuger in console mode.
 
 
 TODO:
-1. replace weakref dict to python dict
-2. implement the 'ls' command
+*. need 'dump' command
+*. implement proxy tunnel
+-. implement commands' options
 
 Changelog:
 
-
+2012-06-13
+			support command key Ctrl-D 
+			add an id for every connection
+			bugfix: unknown command 'ls -h'
+			command 'rm' implemented
 
 2012-06-12	
 			remove duplicated command : "list" "quit"

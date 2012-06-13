@@ -41,6 +41,7 @@ class Server(object):
         self.watchers.append(pyev.Io(self.console._sock, pyev.EV_READ, self.loop,
                                      self.console_cb))
 
+        self.connection_count = 0
         self.conns = {}
 
     def handle_error(self, msg, level=logging.ERROR, exc_info=True):
@@ -52,6 +53,7 @@ class Server(object):
         self.stop()
 
     def console_cb(self, watcher, revents):
+        self.connection_count += 1
         try:
             while True:
                 try:
@@ -62,13 +64,14 @@ class Server(object):
                     else:
                         raise
                 else:
-                    self.conns[address] = Console(sock, address, self.loop, self.conns)
+                    self.conns["%d" % self.connection_count] = Console(self.connection_count, sock, address, self.loop, self.conns)
                     logging.debug("{0}".format(sock))
         except Exception:
             self.handle_error("error accepting a connection")
 
 
     def io_cb(self, watcher, revents):
+        self.connection_count += 1
         try:
             while True:
                 try:
@@ -79,7 +82,7 @@ class Server(object):
                     else:
                         raise
                 else:
-                    self.conns[address] = Proxy(sock, address, self.loop)
+                    self.conns["%d" % self.connection_count] = Proxy(self.connection_count, sock, address, self.loop)
                     logging.debug("{0}: proxy on {0.proxyaddress} and console on {0.consoleaddress}".format(self))
         except Exception:
             self.handle_error("error accepting a connection")
