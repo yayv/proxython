@@ -17,6 +17,7 @@ class Connection(object):
         self.sock.setblocking(0)
         self.status = 'connected'
         self.buf = ""
+        self.request = ""
         self.watcher = pyev.Io(self.sock._sock, pyev.EV_READ, loop, self.io_cb)
         self.watcher.start()
         logging.debug("{0}: ready".format(self))
@@ -79,10 +80,24 @@ class Proxy(Connection):
         super(Proxy, self).__init__(id, sock, address, loop)
 
     def read(self, buf):
-        pass
+        # protocol recognize
+        #p = parser(buf)
+        print 'en'
+        self.request += buf
+
+        print self.request
+        # call parser
+        # HTTP/MAIL/FTP/ etc.
+
 
     def write(self, buf):
         pass
+
+    def dumpcontent(self,filename):
+        f = file(filename,'w')
+        f.write(self.request)
+        f.close()
+
 
 class Console(Connection):
 
@@ -121,7 +136,6 @@ class Console(Connection):
                 argv = command.split()                
                 if argv[0] in self.commands:
                     opts,args = getopt.getopt(argv[1:],self.options[argv[0]])
-                    print 'hi'
                     self.commands[argv[0]](opts,args)
                 else:
                     self.nocmd(argv[0])

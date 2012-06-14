@@ -4,7 +4,6 @@ A Web Proxy Debuger in console mode.
 TODO:
 *. implement a proxy parser class, dispatch socket data to every parsers/clients 
 *. implement a http404 server, with a real dump function.
-*. implement true dump function
 *. implement proxy tunnel
 -. implement commands' options
 
