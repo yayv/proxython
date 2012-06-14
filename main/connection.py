@@ -70,6 +70,9 @@ class Connection(object):
         self.watcher = None
         logging.debug("{0}: closed".format(self))
 
+    def dumpcontent(self, filename):
+        print filename
+
 class Proxy(Connection):
 
     def __init__(self, id, sock, address, loop):
@@ -91,6 +94,7 @@ class Console(Connection):
                 "help":self.help,                
                 "ls":self.listconns,
                 "rm":self.remove,
+                "dump":self.dump,
                 }
 
         self.options = {
@@ -99,6 +103,7 @@ class Console(Connection):
                 "help":"h",                
                 "ls":"h",
                 "rm":"h",
+                "dump":"h",
                 }
 
         self.cmdbuf = ""
@@ -116,6 +121,7 @@ class Console(Connection):
                 argv = command.split()                
                 if argv[0] in self.commands:
                     opts,args = getopt.getopt(argv[1:],self.options[argv[0]])
+                    print 'hi'
                     self.commands[argv[0]](opts,args)
                 else:
                     self.nocmd(argv[0])
@@ -163,6 +169,9 @@ class Console(Connection):
             else:
                 self.sock.send('connection%s is still working\n' % i)
 
+    def dump(self,opts,args):
+        for i in args:
+            self.conns[i].dumpcontent("%s.dump" % i)
 
 
 

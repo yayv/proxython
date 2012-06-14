@@ -2,17 +2,22 @@ A Web Proxy Debuger in console mode.
 
 
 TODO:
-*. need 'dump' command
+*. implement a proxy parser class, dispatch socket data to every parsers/clients 
+*. implement a http404 server, with a real dump function.
+*. implement true dump function
 *. implement proxy tunnel
 -. implement commands' options
 
 Changelog:
 
+2012-06-14
+			add a command 'dump'
+
 2012-06-13
 			support command key Ctrl-D 
 			add an id for every connection
 			bugfix: unknown command 'ls -h'
-			command 'rm' implemented
+			command 'rm' implemented。。
 
 2012-06-12	
 			remove duplicated command : "list" "quit"
